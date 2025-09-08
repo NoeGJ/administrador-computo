@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Administrador de equipos</title>
+  <link rel="stylesheet" href="index.css" />
+</head>
+
+<body>
+  <header class="app-header">
+    <h1>Lista de Equipos</h1>
+    <div class="actions">
+      <button id="addItemBtn" class="btn primary">+ Agregar ítem</button>
+    </div>
+  </header>
+
+
+  <main id="list" class="list"></main>
+
+  <template id="itemTemplate">
+    <article class="item">
+      <header class="item-header">
+        <h2 class="item-title"><span class="item-number"></span></h2>
+        <div class="timer">
+          <div class="time" aria-live="polite">00:00:00</div>
+        </div>
+          <div class="timer-controls">  
+            <button class="btn primary start">Iniciar</button>
+            <button class="btn accent extend">Renovar</button>
+            <button class="btn danger exit">Salir</button>
+            <button class="btn warn show-dialog">Reportar</button>
+          </div>
+      </header>
+
+
+      <div class="tabs">
+        <nav class="tablist" role="tablist" aria-label="Detalles del ítem">
+          <button class="tab active" role="tab" aria-selected="true" data-tab="usuario">Usuario</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="equipos">Equipos</button>
+        </nav>
+
+
+        <section class="tabpanel active" role="tabpanel" data-panel="usuario"></section>
+        <section class="tabpanel" role="tabpanel" data-panel="equipos"></section>
+      </div>
+    </article>
+  </template>
+
+  <dialog id="dialog">
+  <form method="dialog">
+    <p>
+      <label for="report">
+        Describe el problema
+      </label>
+    </p>
+    <textarea id="report" name="report" rows="8" cols="50" minlength="200" maxlength="250" required style="resize:vertical; color: #fff"></textarea>
+    <div class="dialog-actions">
+      <input type="submit" value="Enviar" />    
+      <input type="button" id="js-close" value="Cancelar" />
+    </div>
+  </form>
+</dialog>
+<p>
+  <button id="show-dialog" style="display: none;">Show the dialog</button>
+</p>
+<output></output>
+
+</body>
+<script src="renderer.js"></script>
+</html>
