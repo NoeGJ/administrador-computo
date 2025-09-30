@@ -201,3 +201,34 @@ dialog .dialog-actions input[type="button"] {
 dialog .dialog-actions input[type="button"]:hover {
   background: #b91c1c;
 }
+
+
+  .tab.active {
+    border-bottom: 2px solid #007bff;
+    color: #007bff;
+  }
+
+  .tab-content {
+    display: none;
+    margin-top: 1rem;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+  }
+
+  th, td {
+    padding: 0.8rem;
+    
+    text-align: center;
+  }
+
+  th {
+    background: #0f172a;
+  }

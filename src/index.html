@@ -9,13 +9,19 @@
 
 <body>
   <header class="app-header">
+
     <h1>Lista de Equipos</h1>
-    <div class="actions">
+    <nav class="tabs">
+      <button class="tab active" data-tab="vista1">Equipos</button>
+      <button class="tab" data-tab="vista2">Reportes</button>
+    </nav>
+
+    <!-- <div class="actions">
       <button id="addItemBtn" class="btn primary">+ Agregar ítem</button>
-    </div>
+    </div> -->
   </header>
 
-
+  <section id="vista1" class="tab-content active">
   <main id="list" class="list"></main>
 
   <template id="itemTemplate">
@@ -48,22 +54,39 @@
   </template>
 
   <dialog id="dialog">
-  <form method="dialog">
+  <form method="dialog" id="dialog-form">
     <p>
       <label for="report">
         Describe el problema
       </label>
     </p>
-    <textarea id="report" name="report" rows="8" cols="50" minlength="200" maxlength="250" required style="resize:vertical; color: #fff"></textarea>
+    <textarea id="report" name="report" rows="8" cols="50" maxlength="300" required style="resize:vertical; color: #fff"></textarea>
     <div class="dialog-actions">
-      <input type="submit" value="Enviar" />    
+      <input type="submit" value="Enviar" id="btn-send"/>    
       <input type="button" id="js-close" value="Cancelar" />
     </div>
   </form>
 </dialog>
-<p>
-  <button id="show-dialog" style="display: none;">Show the dialog</button>
-</p>
+</section>
+
+<section id="vista2" class="tab-content">
+  <table id="tabla-reportes">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Código</th>
+        <th>Equipo</th>
+        <th>Descripción</th>      
+      </tr>      
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <p id="mensaje-vacio" style="display:none; color: #fff; text-align:center;">
+    No hay reportes disponibles.
+  </p>
+</section>
+
 <output></output>
 
 </body>
