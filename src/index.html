@@ -13,6 +13,7 @@
     <h1>Lista de Equipos</h1>
     <nav class="tabs">
       <button class="tab active" data-tab="vista1">Equipos</button>
+      <button class="tab" data-tab="vista3">Registros</button>
       <button class="tab" data-tab="vista2">Reportes</button>
     </nav>
 
@@ -84,6 +85,24 @@
   </table>
   <p id="mensaje-vacio" style="display:none; color: #fff; text-align:center;">
     No hay reportes disponibles.
+  </p>
+</section>
+
+<section id="vista3" class="tab-content">
+  <table id="tabla-logs">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Usuario</th>
+        <th>Duración</th>
+        <th>Equipo</th>  
+      </tr>      
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <p id="logs-vacios" style="display:none; color: #fff; text-align:center;">
+    No hay Registros disponibles.
   </p>
 </section>
 

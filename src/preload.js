@@ -6,9 +6,7 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld('api', {
-    getUsers: () => ipcRenderer.invoke('obtener-usuarios'),
-    addUser: (user) => ipcRenderer.invoke('addUser', user),
-    onUserUpdate: (callback) => ipcRenderer.on('userAdded', (event, ...args) => callback(...args)), // no sirve de momento
+    addUser: (user) => ipcRenderer.invoke('addUser', user),    
     fetchUsers: () => ipcRenderer.invoke('fetch-users'),
     onUserChanged: (callback) => {
         ipcRenderer.on('user-changed', (event, payload) => {
@@ -16,7 +14,7 @@ contextBridge.exposeInMainWorld('api', {
         })
     },
     addTime: (seconds, idTimer) => ipcRenderer.send('date-updated', seconds, idTimer),
-    finishTime: (code) => ipcRenderer.send('finish', code),
+    finishTime: (code, id_equipo) => ipcRenderer.send('finish', code, id_equipo),
     sendReport: ( code, id_equipo, text) => ipcRenderer.send('newReport', code, id_equipo, text),
     fetchReportes: () => ipcRenderer.invoke('fetch-reportes'),
     onReporteChanged: (callback) => {

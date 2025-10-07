@@ -232,3 +232,19 @@ dialog .dialog-actions input[type="button"]:hover {
   th {
     background: #0f172a;
   }
+
+   .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+
+  .activo {
+    background-color: green;
+  }
+
+  .inactivo {
+    background-color: red;
+  }

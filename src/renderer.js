@@ -89,9 +89,9 @@ let index = 0;
 
 function renderAll() {
   list.innerHTML = "";
-
-  if (!items) return;
-  items.forEach((data) => {
+  const activos = items.filter((user) => user?.active)
+  if (!activos) return;
+  activos.forEach((data) => {
     render(data);
   });
 }
@@ -116,7 +116,7 @@ function render(data) {
     getTiempoRestante(data.finalTime),
     data.id
   );
-
+  sw.start();
   const usuarioPanel = node.querySelector('[data-panel="usuario"]');
 
   // Controles
@@ -126,7 +126,7 @@ function render(data) {
     .querySelector(".show-dialog")
     .addEventListener("click", () => dialog.showModal());
   node.querySelector(".exit").addEventListener("click", () => {
-    window.api.finishTime(data.id);
+    window.api.finishTime(data.id, data.equipos.id);
   });
 
   // Tabs
@@ -232,12 +232,6 @@ function escapeHtml(str) {
     .replaceAll("'", "&#39;");
 }
 
-window.api.onUserUpdate(async (event, usuario) => {
-  console.log("Usuarios actualizados desde main (evento): ", usuario);
-  items = await window.api.getUsers();
-  render();
-});
-
 document.addEventListener("DOMContentLoaded", async () => {
   const dialog = document.getElementById("dialog");
   const btnCerrar = document.getElementById("js-close");
@@ -246,8 +240,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     dialog.close();
   });
 
-  const result = await window.api.fetchUsers();
-  items = result.data;
+  const { activeUsers, logs } = await window.api.fetchUsers();
+  
+  //const res = result.data.filter((user) => user.active)
+  console.log(activeUsers);
+  items = activeUsers;
+
+  logList = logs;
 
   const { data } = await window.api.fetchReportes();
   console.log(data);
@@ -255,6 +254,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   reportes = data;
   renderAll();
   renderReportes();
+  renderLogs();
 });
 
 window.api.onUserChanged((payload) => {
@@ -285,14 +285,52 @@ window.api.onReporteChanged((payload) => {
 function actualizarUsuario(payload) {
   const { eventType, new: nuevo, old: anterior } = payload;
 
-  if (eventType === "INSERT") {
+  if(eventType === "INSERT"){
     items.push(nuevo);
+    logList.push(nuevo);
     render(nuevo);
-  } else if (eventType === "UPDATE") {
-    if (!nuevo.active) {
-      items = items.filter((value) => value.code != nuevo.id);
+    renderLog(nuevo, "insert");
+  }
+
+  if (eventType === "UPDATE") {
+    const exist = items.some((item) => item?.id === nuevo.id);
+    if (nuevo.active && !exist) {      
+      items.push(nuevo);
+      console.log(items);
+      
+      render(nuevo);
+    }else if (!nuevo.active && exist) {
+      
+      const index = logList.findIndex((item) => item.id === nuevo.id);
+      logList[index] = { ...logList[index], active: false };
+      renderLog(logList[index], "active");
+
+      items = items.filter((value) => value.id != nuevo.id);
       const article = document.getElementById(`item-${nuevo.id}`);
       article.remove();
+    }
+    else {
+      const index = items.findIndex((value) => value.id === nuevo.id);
+      items[index] = { ...items[index], finalTime: nuevo.finalTime };
+
+      logList[index] = { ...logList[index], finalTime: nuevo.finalTime };
+      console.log(logList[index]);
+      
+      renderLog(logList[index], "date");
+
+      const article = document.getElementById(`item-${nuevo.id}`);
+      if(article){
+      const timeEl = article.querySelector(".time");
+      if(timeEl){
+      const sw = new Stopwatch(
+        timeEl,
+        (elapsed) => (timeEl.textContent = formatHMS(elapsed)),
+        getTiempoRestante(nuevo.finalTime),
+        nuevo.id
+      );
+      sw.start();
+      }
+    }
     }
   }
   // No tocas los temporizadores activos si no es necesario
@@ -329,7 +367,6 @@ function renderReportes() {
   }
   console.log(reportes);
   
-
   reportes.forEach((rep) => {
     const row = document.createElement("tr");
     row.innerHTML = `
@@ -340,4 +377,55 @@ function renderReportes() {
         `;
     tbody.appendChild(row);
   });
+}
+
+const tbodyLogs = document.querySelector("#tabla-logs tbody");
+const logsVacios = document.getElementById("logs-vacios");
+
+let logList = [];
+function renderLogs() {
+  tbodyLogs.innerHTML = "";
+  console.log(logList);
+
+  isEmptyLogs();
+  
+  logList.forEach((item) => {
+    createRowLog(item);
+  })
+}
+
+function isEmptyLogs(){
+  if(logList.length === 0){
+    logsVacios.style.display = "block";
+    return;
+  } else {
+    logsVacios.style.display = "none";
+  }
+}
+
+function createRowLog(item) {
+   const row = document.createElement("tr");
+   row.id = `equipo-${item.id}`;
+    row.innerHTML = `
+        <td><p><span class="dot ${item.active ? "activo" : "inactivo"}"></span></p></td>
+        <td>${item.code} - ${ item.name}</td>
+        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : 'N/A'} - ${item.finalTime ? new Date(item.finalTime).toLocaleString() : 'N/A'}</td>
+        <td>${item.equipos ? item.equipos.name : 'N/A'}</td>
+        `;
+    tbodyLogs.appendChild(row);
+}
+
+function renderLog(data, action) {
+  if(action == "insert"){
+    isEmptyLogs();
+
+    createRowLog(data);
+
+  }
+  if(action == "active" || action == "date"){
+    const row = document.getElementById(`equipo-${data.id}`);
+    if(row) row.remove();    
+    createRowLog(data);
+  }
+
 }
