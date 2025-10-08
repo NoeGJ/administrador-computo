@@ -28,13 +28,17 @@ const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: width,
     height: height,
+    
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
       contextIsolation: true,
-      nodeIntegration: false,
+      nodeIntegration: false,      
+      
     },
   });
+  mainWindow.maximize();
 
+  mainWindow.removeMenu();
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 

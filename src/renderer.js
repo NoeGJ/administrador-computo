@@ -120,11 +120,8 @@ function render(data) {
   const usuarioPanel = node.querySelector('[data-panel="usuario"]');
 
   // Controles
-  node.querySelector(".start").addEventListener("click", () => sw.start());
   node.querySelector(".extend").addEventListener("click", () => sw.extender());
-  node
-    .querySelector(".show-dialog")
-    .addEventListener("click", () => dialog.showModal());
+  node.querySelector(".show-dialog").addEventListener("click", () => dialog.showModal());
   node.querySelector(".exit").addEventListener("click", () => {
     window.api.finishTime(data.id, data.equipos.id);
   });
@@ -221,16 +218,6 @@ function renderEquipos(equipos) {
 //   });
 //   render();
 // });
-
-// Utilidad mínima para evitar inyección al mostrar strings
-function escapeHtml(str) {
-  return String(str)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
 
 document.addEventListener("DOMContentLoaded", async () => {
   const dialog = document.getElementById("dialog");
