@@ -1,112 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Reloj de Sesión</title>
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self'; connect-src *; style-src 'self' 'unsafe-inline'; script-src 'self';">
+    <style>
+      /* Estilos para hacer la ventana transparente y flotante */
+      body {
+        margin: 0;
+        background: transparent;
+        font-family: "Segoe UI", sans-serif;
+        color: white;
+        font-size: 32px;
+        /* Posiciona el contenido en la esquina superior derecha */
+        display: flex; 
+        justify-content: flex-end;
+        align-items: flex-start;
+        height: 100vh;
+        padding: 10px;
+        /* Permite clics a través del cuerpo, solo el contenedor será interactivo */
+        pointer-events: none; 
+        overflow: hidden;
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <title>Administrador de equipos</title>
-  <link rel="stylesheet" href="index.css" />
-</head>
+      /* Contenedor principal que captura los eventos del ratón */
+      #container {
+        background-color: rgba(0, 0, 0, 0.6);
+        padding: 10px 15px; /* Reducido un poco */
+        border-radius: 10px;
+        pointer-events: auto; /* Hace que el contenedor sea clickeable */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
 
-<body>
-  <header class="app-header">
+      #clock {
+        margin-bottom: 8px; /* Espaciado ajustado */
+        font-size: 28px;
+        font-weight: bold;
+      }
 
-    <h1>Lista de Equipos</h1>
-    <nav class="tabs">
-      <button class="tab active" data-tab="vista1">Equipos</button>
-      <button class="tab" data-tab="vista3">Registros</button>
-      <button class="tab" data-tab="vista2">Reportes</button>
-    </nav>
+      .btn-group {
+        display: flex;
+        gap: 8px; /* Espaciado ajustado */
+      }
 
-    <!-- <div class="actions">
-      <button id="addItemBtn" class="btn primary">+ Agregar ítem</button>
-    </div> -->
-  </header>
+      /* Base para todos los botones */
+      button {
+        border: none;
+        border-radius: 5px;
+        padding: 6px 10px;
+        font-size: 14px;
+        cursor: pointer;
+        font-weight: 600; /* Añadido para mejor contraste */
+        transition: background-color 0.2s;
+      }
 
-  <section id="vista1" class="tab-content active">
-  <main id="list" class="list"></main>
+      /* Estilo para el botón de Renovar (azul) */
+      #pauseBtn { /* Renamed from #renovarBtn */
+        background-color: #4a90e2; /* Similar al azul de la app principal */
+        color: white;
+      }
 
-  <template id="itemTemplate">
-    <article class="item">
-      <header class="item-header">
-        <h2 class="item-title"><span class="item-number"></span></h2>
-        <div class="timer">
-          <div class="time" aria-live="polite">00:00:00</div>
-        </div>
-          <div class="timer-controls">              
-            <button class="btn accent extend">Renovar</button>
-            <button class="btn danger exit">Salir</button>
-            <button class="btn warn show-dialog">Reportar</button>
-          </div>
-      </header>
+      #pauseBtn:hover {
+        background-color: #357ab8;
+      }
 
+      /* Estilo para el botón de Reporte (naranja) */
+      #show-dialog { /* Renamed from #reporteBtn */
+        background-color: #e2a34a; /* Similar al naranja de la app principal */
+        color: white;
+      }
 
-      <div class="tabs">
-        <nav class="tablist" role="tablist" aria-label="Detalles del ítem">
-          <button class="tab active" role="tab" aria-selected="true" data-tab="usuario">Usuario</button>
-          <button class="tab" role="tab" aria-selected="false" data-tab="equipos">Equipos</button>
-        </nav>
+      #show-dialog:hover {
+        background-color: #b87035;
+      }
 
+      /* Estilo para el botón de Salir (rojo) */
+      #closeBtn { /* Renamed from #salirBtn */
+        background-color: #e24a4a; /* Similar al rojo de la app principal */
+        color: white;
+      }
 
-        <section class="tabpanel active" role="tabpanel" data-panel="usuario"></section>
-        <section class="tabpanel" role="tabpanel" data-panel="equipos"></section>
+      #closeBtn:hover {
+        background-color: #b83535;
+      }
+      
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="clock">--:--:--</div>
+      <div class="btn-group">
+        <button id="pauseBtn">Renovar</button> 
+        <button id="show-dialog">Reportar</button>
+        <button id="closeBtn">Salir</button>
       </div>
-    </article>
-  </template>
-
-  <dialog id="dialog">
-  <form method="dialog" id="dialog-form">
-    <p>
-      <label for="report">
-        Describe el problema
-      </label>
-    </p>
-    <textarea id="report" name="report" rows="8" cols="50" maxlength="300" required style="resize:vertical; color: #fff"></textarea>
-    <div class="dialog-actions">
-      <input type="submit" value="Enviar" id="btn-send"/>    
-      <input type="button" id="js-close" value="Cancelar" />
     </div>
-  </form>
-</dialog>
-</section>
 
-<section id="vista2" class="tab-content">
-  <table id="tabla-reportes">
-    <thead>
-      <tr>
-        <th>Id</th>
-        <th>Código</th>
-        <th>Equipo</th>
-        <th>Descripción</th>      
-      </tr>      
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
-  <p id="mensaje-vacio" style="display:none; color: #fff; text-align:center;">
-    No hay reportes disponibles.
-  </p>
-</section>
 
-<section id="vista3" class="tab-content">
-  <table id="tabla-logs">
-    <thead>
-      <tr>
-        <th></th>
-        <th>Usuario</th>
-        <th>Duración</th>
-        <th>Equipo</th>  
-      </tr>      
-    </thead>
-    <tbody>
-    </tbody>
-  </table>
-  <p id="logs-vacios" style="display:none; color: #fff; text-align:center;">
-    No hay Registros disponibles.
-  </p>
-</section>
-
-<output></output>
-
-</body>
-<script src="renderer.js"></script>
+  </body>
+  <script src="renderer.js"></script>
 </html>

@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+    <head>
+  <meta charset="UTF-8">
+  <title>Crear Reporte</title>
+  <link rel="stylesheet" href="dialog.css"/>
+  <body>
+  <div id="dialog-container">
+    <form id="report-form">
+      <h2>Reportar un problema</h2>
+      <label for="report">Describe el problema</label>
+      <textarea id="report" name="report" rows="8" maxlength="300" required placeholder="Escribe aquí tu mensaje..."></textarea>
+      <div class="dialog-actions">
+        <input type="submit" value="Enviar" class="btn primary" />
+        <input type="button" id="js-close" value="Cancelar" class="btn danger" />
+      </div>
+    </form>
+  </div>
+  <script src="dialog.js"></script>
+</body>
+</html>

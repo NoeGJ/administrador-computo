@@ -1,0 +1,119 @@
+:root {
+  --bg: #0f172a; /* slate-900 */
+  --surface: #111827; /* gray-900 */
+  --surface-2: #1f2937; /* gray-800 */
+  --text: #e5e7eb; /* gray-200 */
+  --muted: #9ca3af; /* gray-400 */
+  --primary: #22c55e; /* green-500 */
+  --primary-700: #15803d; /* green-700 */
+  --accent: #60a5fa; /* blue-400 */
+  --danger: #ef4444; /* red-500 */
+  --danger-hover: #b91c1c;
+  --warning: #f59e0b; /* amber-500 */
+  --radius: 16px;
+}
+
+body {
+
+  overflow: hidden;
+}
+
+/* 🪟 Contenedor de diálogo tipo ventana */
+#dialog-container {
+  background: var(--surface);
+  padding: 30px;
+  border-radius: var(--radius);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  color: var(--text);
+  max-width: 480px;
+  margin: 2px auto;
+  
+  font-size: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* 🧾 Formulario */
+#report-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+#report-form h2 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--text);
+}
+
+/* 🏷️ Etiqueta */
+#report-form label {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+/* ✍️ Textarea */
+#report-form textarea {
+  padding: 12px;
+  font-size: 0.95rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--surface-2);
+  color: var(--text);
+  resize: vertical;
+  min-height: 120px;
+}
+
+#report-form textarea::placeholder {
+  color: var(--muted);
+}
+
+/* 🎛️ Acciones */
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 🧩 Botones */
+.btn {
+  appearance: none;
+  border: 1px solid transparent;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 8px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: transform .06s ease, background .2s ease, border-color .2s ease;
+  font-size: 0.95rem;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn.primary {
+  background: var(--primary);
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn.primary:hover {
+  background: var(--primary-700);
+  color: #ecfdf5;
+}
+
+.btn.danger {
+  background: var(--danger);
+  color: #fff;
+}
+
+.btn.danger:hover {
+  background: var(--danger-hover);
+}
