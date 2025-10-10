@@ -1,140 +1,332 @@
-// renderer.js
+import { Stopwatch } from "./components/watch/stopwatch.js";
+import { formatHMS } from "./helpers/formatToMs.js"; 
 
-let countdownInterval;
-let finalTime = null; // Stores the session end timestamp
+let items = [];
+let reportes = [];
+let logList = [];
 
-// Utility function to format milliseconds into HH:MM:SS
-function formatTime(ms) {
-    if (ms <= 0) {
-        return "00:00:00";
-    }
-    const totalSeconds = Math.floor(ms / 1000);
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+// ----- Renderizado de ítems -----
+const list = document.getElementById("list");
+const template = document.getElementById("itemTemplate");
+const showBtn = document.getElementById("show-dialog");
 
-    const pad = num => num.toString().padStart(2, '0');
+let index = 0;
 
-    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+function renderAll() {
+  list.innerHTML = "";
+  const activos = items.filter((user) => user?.active)
+  if (!activos) return;
+  activos.forEach((data) => {
+    render(data);
+  });
 }
 
-// Countdown loop - runs every second
-function updateClock() {
-    if (finalTime === null) {
-        // Should only happen right at startup before initializeTimer runs
-        document.getElementById('clock').textContent = 'Loading...';
-        return;
-    }
-
-    const now = new Date().getTime();
-    const remainingTime = finalTime - now;
-
-    const formattedTime = formatTime(remainingTime);
-    document.getElementById('clock').textContent = formattedTime;
-
-    if (remainingTime <= 0) {
-        // Stop the countdown and visually indicate the session has expired
-        clearInterval(countdownInterval);
-        document.getElementById('clock').textContent = 'SESSION ENDED';
-        document.getElementById('clock').style.color = '#ef4444'; // Red color
-    } else {
-        document.getElementById('clock').style.color = 'var(--text)'; // Normal color
-    }
+function getTiempoRestante(final) {
+  const res = new Date(final) - new Date(new Date().toUTCString());
+  return res > 0 ? res : 0;
 }
 
-// Function to start or restart the countdown
-function startCountdown() {
-    // Clear any existing interval
-    if (countdownInterval) {
-        clearInterval(countdownInterval);
-    }
-    // Start the new interval
-    countdownInterval = setInterval(updateClock, 1000);
-    updateClock(); // Initial update to avoid 1-second delay
-}
+function render(data) {
+  const node = template.content.cloneNode(true);
+  const article = node.querySelector(".item");
+  article.id = `item-${data.id}`;
 
-// Main initialization function - Fetches time from the main process
-async function initializeTimer() {
-    const clockElement = document.getElementById('clock');
-    clockElement.textContent = 'Cargando sesión...';
+  node.querySelector(".item-number").textContent = index + 1;
+
+  // Timer
+  const timeEl = node.querySelector(".time");
+  const sw = new Stopwatch(
+    timeEl,
+    (elapsed) => (timeEl.textContent = formatHMS(elapsed)),
+    getTiempoRestante(data.finalTime),
+    data.id
+  );
+  sw.start();
+  const usuarioPanel = node.querySelector('[data-panel="usuario"]');
+
+  // Controles
+  node.querySelector(".extend").addEventListener("click", () => sw.extender());
+  node.querySelector(".show-dialog").addEventListener("click", () => dialog.showModal());
+  node.querySelector(".exit").addEventListener("click", () => {
+    window.api.finishTime(data.id, data.equipos.id);
+  });
+
+  // Tabs
+  const tabButtons = node.querySelectorAll(".tab");
+  const panels = node.querySelectorAll(".tabpanel");
+  tabButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      tabButtons.forEach((b) => {
+        b.classList.toggle("active", b === btn);
+        b.setAttribute("aria-selected", b === btn ? "true" : "false");
+      });
+      panels.forEach((p) =>
+        p.classList.toggle("active", p.dataset.panel === btn.dataset.tab)
+      );
+    });
+  });
+
+  // Panel Usuario
+  const usuario = {
+    name: data.name || "Sin nombre",
+
+    career: data.career || "",
+    code: data.code || "",
+  };
+  usuarioPanel.innerHTML = renderUsuario(usuario);
+
+  // Panel Equipos
+  const equiposPanel = node.querySelector('[data-panel="equipos"]');
+
+  // Asegura que equipos sea un array (aunque solo haya uno)
+  const equiposArray = data.equipos
+    ? Array.isArray(data.equipos)
+      ? data.equipos
+      : [data.equipos]
+    : [];
+
+  equiposPanel.innerHTML = renderEquipos(equiposArray);
+
+  const dialog = document.getElementById("dialog");
+  const form = document.getElementById("dialog-form");
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const info = new FormData(form);
     
-    // Check if the API bridge exists
-    if (window.api && window.api.getFinalTime) {
-        try {
-            const result = await window.api.getFinalTime();
-            
-            if (result.success && result.finalTime) {
-                // SUCCESS: Store the final time and start the timer
-                finalTime = new Date(result.finalTime).getTime(); 
-                startCountdown();
-            } else {
-                // FAILURE: Display the specific message returned from index.js
-                const errorMessage = result.message || 'Error desconocido al cargar sesión.';
-                clockElement.textContent = `ERROR: ${errorMessage}`;
-                console.error('Failed to load final time from Supabase:', errorMessage);
-            }
-        } catch (e) {
-            // IPC FAILURE: Error reaching the main process
-            clockElement.textContent = 'ERROR: Comunicación IPC fallida.';
-            console.error('IPC Error fetching final time:', e);
-        }
-    } else {
-         // PRELOAD FAILURE: window.api wasn't set up correctly
-         clockElement.textContent = 'ERROR: API de Electron no disponible.';
-         console.error('Preload API not exposed.');
-    }
+    window.api.sendReport(data.id, data.equipos.id, info.get("report"));
+
+    dialog.close();
+  });
+
+  list.appendChild(node);
+  index++;
 }
 
-// --- BUTTON LOGIC HANDLER ---
-const setupButtonListeners = () => {
-    // Renovar/Renew Button (Calls IPC for Supabase renewal)
-    document.getElementById('pauseBtn').addEventListener('click', async () => {
-        const renewBtn = document.getElementById('pauseBtn');
-        renewBtn.disabled = true;
-        renewBtn.textContent = 'Renovando...';
-        
-        if (window.api && window.api.renewSession) {
-            const result = await window.api.renewSession();
-            
-            if (result.success) {
-                renewBtn.textContent = 'Renovado!';
-                // IMMEDIATELY update the countdown with the new time from the server
-                finalTime = new Date(result.newTime).getTime();
-                startCountdown();
-            } else {
-                console.error("Renewal failed:", result.message);
-                renewBtn.textContent = `Error! (${result.message.substring(0, 10)}...)`;
-            }
+function renderUsuario(usuario) {
+  return `
+    <div class="usuario-info">
+      <p><strong>Nombre: </strong> ${usuario.name || "Desconocido"}</p>
+      <p><strong>Carrera: </strong> ${usuario.career || "No disponible"}</p>
+      <p><strong>Código: </strong> ${usuario.code || "Sin ID"}</p>
+    </div>
+  `;
+}
 
-        } else {
-            renewBtn.textContent = 'Error API';
-        }
+function renderEquipos(equipos) {
+  if (!equipos || equipos.length === 0) {
+    return '<div class="empty">Sin equipos asignados</div>';
+  }
 
-        // Re-enable the button and reset text after a short delay
-        setTimeout(() => {
-            renewBtn.textContent = 'Renovar';
-            renewBtn.disabled = false;
-        }, 1500);
-    });
+  return equipos
+    .map(
+      (equipo) => `
+      <div class="equipo-item">
+        <p><strong>Nombre: </strong> ${equipo.name || "Sin nombre"}</p>
+        <p><strong>Sistema: </strong> ${equipo.sistema || "Sin estado"}</p>
+      </div>
+    `
+    )
+    .join("");
+}
 
-    // Reportar/Show Dialog Button 
-    document.getElementById('show-dialog').addEventListener('click', () => {
-        if (window.api && window.api.openDialog) {
-            window.api.openDialog();
-        }
-    });
+document.addEventListener("DOMContentLoaded", async () => {
+  const dialog = document.getElementById("dialog");
+  const btnCerrar = document.getElementById("js-close");
 
-    // Salir/Close Button 
-    document.getElementById('closeBtn').addEventListener('click', () => {
-        if (window.api && window.api.closeApp) {
-            window.api.closeApp(); 
-        }
-    });
-};
+  btnCerrar.addEventListener("click", () => {
+    dialog.close();
+  });
 
+  const { activeUsers, logs } = await window.api.fetchUsers();
+  
+  //const res = result.data.filter((user) => user.active)
+  console.log(activeUsers);
+  items = activeUsers;
 
-// Start the timer and set up all event listeners ONLY after the DOM is fully loaded.
-window.addEventListener('DOMContentLoaded', () => {
-    initializeTimer();
-    setupButtonListeners();
+  logList = logs;
+
+  const { data } = await window.api.fetchReportes();
+  console.log(data);
+  
+  reportes = data;
+  renderAll();
+  renderReportes();
+  renderLogs();
 });
+
+window.api.onUserChanged((payload) => {
+  console.log("Nuevo cambio en usuario:", payload);
+
+  // Agrega el nuevo dato sin reiniciar temporizadores
+  // Por ejemplo, actualiza una lista local
+  actualizarUsuario(payload);
+});
+
+window.api.onReporteChanged((payload) => {
+  console.log("Nuevo cambio en reporte:", payload); 
+  reportes.push(payload);
+
+  if(mensajeVacio.style.display == "block") mensajeVacio.style.display = "none";
+
+  const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${payload.id}</td>
+        <td>${payload.users.code}</td>
+        <td>${payload.equipos.name}</td>
+        <td>${payload.description}</td>
+        `;
+    tbody.prepend(row);
+
+});
+
+function actualizarUsuario(payload) {
+  const { eventType, new: nuevo, old: anterior } = payload;
+
+  if(eventType === "INSERT"){
+    items.push(nuevo);
+    logList.push(nuevo);
+    render(nuevo);
+    renderLog(nuevo, "insert");
+  }
+
+  if (eventType === "UPDATE") {
+    const exist = items.some((item) => item?.id === nuevo.id);
+    if (nuevo.active && !exist) {      
+      items.push(nuevo);
+      console.log(items);
+      
+      render(nuevo);
+    }else if (!nuevo.active && exist) {
+      
+      const index = logList.findIndex((item) => item.id === nuevo.id);
+      logList[index] = { ...logList[index], active: false };
+      renderLog(logList[index], "active");
+
+      items = items.filter((value) => value.id != nuevo.id);
+      const article = document.getElementById(`item-${nuevo.id}`);
+      article.remove();
+    }
+    else {
+      const index = items.findIndex((value) => value.id === nuevo.id);
+      items[index] = { ...items[index], finalTime: nuevo.finalTime };
+
+      logList[index] = { ...logList[index], finalTime: nuevo.finalTime };
+      console.log(logList[index]);
+      
+      renderLog(logList[index], "date");
+
+      const article = document.getElementById(`item-${nuevo.id}`);
+      if(article){
+      const timeEl = article.querySelector(".time");
+      if(timeEl){
+      const sw = new Stopwatch(
+        timeEl,
+        (elapsed) => (timeEl.textContent = formatHMS(elapsed)),
+        getTiempoRestante(nuevo.finalTime),
+        nuevo.id
+      );
+      sw.start();
+      }
+    }
+    }
+  }
+  // No tocas los temporizadores activos si no es necesario
+}
+
+document.querySelectorAll(".tabs .tab").forEach((tab) => {
+  tab.addEventListener("click", () => {
+    // desactivar todos los tabs y contenidos
+    document
+      .querySelectorAll(".tabs .tab")
+      .forEach((t) => t.classList.remove("active"));
+    document
+      .querySelectorAll(".tab-content")
+      .forEach((c) => c.classList.remove("active"));
+
+    // activar el tab clickeado y su contenido
+    tab.classList.add("active");
+    document.getElementById(tab.dataset.tab).classList.add("active");
+  });
+});
+
+
+const tbody = document.querySelector("#tabla-reportes tbody");
+const mensajeVacio = document.getElementById("mensaje-vacio");
+
+function renderReportes() {
+  tbody.innerHTML = "";
+
+  if (reportes.length === 0) {
+    mensajeVacio.style.display = "block";
+    return;
+  } else {
+    mensajeVacio.style.display = "none";
+  }
+  console.log(reportes);
+  
+  reportes.forEach((rep) => {
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td>${rep.id}</td>
+        <td>${rep.users.code}</td>
+        <td>${rep.equipos.name}</td>
+        <td>${rep.description}</td>
+        `;
+    tbody.appendChild(row);
+  });
+}
+
+const tbodyLogs = document.querySelector("#tabla-logs tbody");
+const logsVacios = document.getElementById("logs-vacios");
+
+
+function renderLogs() {
+  tbodyLogs.innerHTML = "";
+  console.log(logList);
+
+  isEmptyLogs();
+  
+  logList.forEach((item) => {
+    const row = createRowLog(item);
+    tbodyLogs.appendChild(row);
+  })
+}
+
+function isEmptyLogs(){
+  if(logList.length === 0){
+    logsVacios.style.display = "block";
+    return;
+  } else {
+    logsVacios.style.display = "none";
+  }
+}
+
+function createRowLog(item) {
+   const row = document.createElement("tr");
+   row.id = `equipo-${item.id}`;
+    row.innerHTML = `
+        <td><span class="dot ${item.active ? "activo" : "inactivo"}"></span></td>
+        <td>${item.code} - ${ item.name}</td>
+        <td>${item.created_at ? new Date(item.created_at).toLocaleString() : 'N/A'} - ${item.finalTime ? new Date(item.finalTime).toLocaleString() : 'N/A'}</td>
+        <td>${item.equipos ? item.equipos.name : 'N/A'}</td>
+        `;
+    return row;
+}
+
+function renderLog(data, action) {
+  if(action == "insert"){
+    isEmptyLogs();
+
+    const row = createRowLog(data);
+    tbodyLogs.prepend(row)
+
+  }
+  if(action == "active" || action == "date"){
+    const element = document.getElementById(`equipo-${data.id}`);
+    if(element) element.remove();    
+    const row = createRowLog(data);
+    tbodyLogs.prepend(row);
+  }
+
+}

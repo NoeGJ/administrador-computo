@@ -1,105 +1,210 @@
 <!DOCTYPE html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Reloj de Sesión</title>
-    <meta http-equiv="Content-Security-Policy" 
-          content="default-src 'self'; connect-src *; style-src 'self' 'unsafe-inline'; script-src 'self';">
-    <style>
-      /* Estilos para hacer la ventana transparente y flotante */
-      body {
-        margin: 0;
-        background: transparent;
-        font-family: "Segoe UI", sans-serif;
-        color: white;
-        font-size: 32px;
-        /* Posiciona el contenido en la esquina superior derecha */
-        display: flex; 
-        justify-content: flex-end;
-        align-items: flex-start;
-        height: 100vh;
-        padding: 10px;
-        /* Permite clics a través del cuerpo, solo el contenedor será interactivo */
-        pointer-events: none; 
-        overflow: hidden;
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Administrador de equipos</title>
+  <link rel="stylesheet" href="index.css" />
+  <!--  -->
+  <style>
+
+    #input-container {
+      margin-bottom: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      display: inline-block;
+      border-radius: 8px;
+    }
+    
+    #input-container label, 
+    #input-container input, 
+    #input-container button {
+      display: block;
+      margin: 10px auto;
+    }
+    
+    input[type="text"] {
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      width: 250px;
+      text-align: center;
+    }
+    
+
+
+    #qrcode {
+      display: inline-block;
+      margin-top: 20px;
+    }
+  </style>
+  <!--  -->
+</head>
+
+<body>
+  <header class="app-header">
+
+    <h1>Lista de Equipos</h1>
+    <nav class="tabs">
+      <button class="tab active" data-tab="vista1">Equipos</button>
+      <button class="tab" data-tab="vista3">Registros</button>
+      <button class="tab" data-tab="vista2">Reportes</button>
+      <button class="tab" data-tab="vista4">Nuevo</button>
+    </nav>
+
+    <!-- <div class="actions">
+      <button id="addItemBtn" class="btn primary">+ Agregar ítem</button>
+    </div> -->
+  </header>
+
+  <section id="vista1" class="tab-content active">
+  <main id="list" class="list"></main>
+
+  <template id="itemTemplate">
+    <article class="item">
+      <header class="item-header">
+        <h2 class="item-title"><span class="item-number"></span></h2>
+        <div class="timer">
+          <div class="time" aria-live="polite">00:00:00</div>
+        </div>
+          <div class="timer-controls">              
+            <button class="btn accent extend">Renovar</button>
+            <button class="btn danger exit">Salir</button>
+            <button class="btn warn show-dialog">Reportar</button>
+          </div>
+      </header>
+
+
+      <div class="tabs">
+        <nav class="tablist" role="tablist" aria-label="Detalles del ítem">
+          <button class="tab active" role="tab" aria-selected="true" data-tab="usuario">Usuario</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="equipos">Equipos</button>
+        </nav>
+
+
+        <section class="tabpanel active" role="tabpanel" data-panel="usuario"></section>
+        <section class="tabpanel" role="tabpanel" data-panel="equipos"></section>
+      </div>
+    </article>
+  </template>
+
+  <dialog id="dialog">
+  <form method="dialog" id="dialog-form">
+    <p>
+      <label for="report">
+        Describe el problema
+      </label>
+    </p>
+    <textarea id="report" name="report" rows="8" cols="50" maxlength="300" required style="resize:vertical; color: #fff"></textarea>
+    <div class="dialog-actions">
+      <input type="submit" value="Enviar" id="btn-send"/>    
+      <input type="button" id="js-close" value="Cancelar" />
+    </div>
+  </form>
+</dialog>
+</section>
+
+<section id="vista2" class="tab-content">
+  <table id="tabla-reportes">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Código</th>
+        <th>Equipo</th>
+        <th>Descripción</th>      
+      </tr>      
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <p id="mensaje-vacio" style="display:none; color: #fff; text-align:center;">
+    No hay reportes disponibles.
+  </p>
+</section>
+
+<section id="vista3" class="tab-content">
+  <table id="tabla-logs">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Usuario</th>
+        <th>Duración</th>
+        <th>Equipo</th>  
+      </tr>      
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  <p id="logs-vacios" style="display:none; color: #fff; text-align:center;">
+    No hay Registros disponibles.
+  </p>
+</section>
+
+<section id="vista4" class="tab-content">
+  <div class="nuevo-equipo">
+    
+    <h2>Generador de QR para Enlace de Acceso</h2>
+
+  <div id="input-container">
+    <label  for="equipoName">Nombre del Equipo (Ej: PC-LAB-001):</label>
+    <input type="text" id="equipoName" placeholder="Escribe el nombre del equipo" required>
+    
+    <button onclick="generateQRCode()">Generar QR</button>
+  </div>
+
+  <p id="generatedUrlMessage" style="color: green; font-weight: bold; min-height: 20px;"></p>
+
+  <div id="qrcode"></div>
+
+  </div>
+</section>
+
+<output></output>
+
+</body>
+<script type="module" src="renderer.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <script>
+    // URL base, sin el parámetro del equipo.
+    const baseURL = "http://192.168.1.114:3000/index.html";
+    let qr = null; // Variable para almacenar la instancia del QR
+
+    function generateQRCode() {
+      const equipoNameInput = document.getElementById("equipoName");
+      const equipoName = equipoNameInput.value.trim();
+      const qrContainer = document.getElementById("qrcode");
+      const urlMessage = document.getElementById("generatedUrlMessage");
+
+      if (equipoName === "") {
+        alert("Por favor, introduce el nombre del equipo.");
+        equipoNameInput.focus();
+        return;
       }
 
-      /* Contenedor principal que captura los eventos del ratón */
-      #container {
-        background-color: rgba(0, 0, 0, 0.6);
-        padding: 10px 15px; /* Reducido un poco */
-        border-radius: 10px;
-        pointer-events: auto; /* Hace que el contenedor sea clickeable */
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-      }
+      // 1. Construir el link completo con el parámetro 'equipo'
+      const finalURL = `${baseURL}?equipo=${encodeURIComponent(equipoName)}`;
 
-      #clock {
-        margin-bottom: 8px; /* Espaciado ajustado */
-        font-size: 28px;
-        font-weight: bold;
-      }
-
-      .btn-group {
-        display: flex;
-        gap: 8px; /* Espaciado ajustado */
-      }
-
-      /* Base para todos los botones */
-      button {
-        border: none;
-        border-radius: 5px;
-        padding: 6px 10px;
-        font-size: 14px;
-        cursor: pointer;
-        font-weight: 600; /* Añadido para mejor contraste */
-        transition: background-color 0.2s;
-      }
-
-      /* Estilo para el botón de Renovar (azul) */
-      #pauseBtn { /* Renamed from #renovarBtn */
-        background-color: #4a90e2; /* Similar al azul de la app principal */
-        color: white;
-      }
-
-      #pauseBtn:hover {
-        background-color: #357ab8;
-      }
-
-      /* Estilo para el botón de Reporte (naranja) */
-      #show-dialog { /* Renamed from #reporteBtn */
-        background-color: #e2a34a; /* Similar al naranja de la app principal */
-        color: white;
-      }
-
-      #show-dialog:hover {
-        background-color: #b87035;
-      }
-
-      /* Estilo para el botón de Salir (rojo) */
-      #closeBtn { /* Renamed from #salirBtn */
-        background-color: #e24a4a; /* Similar al rojo de la app principal */
-        color: white;
-      }
-
-      #closeBtn:hover {
-        background-color: #b83535;
+      // 2. Limpiar el contenedor del QR anterior
+      qrContainer.innerHTML = "";
+      
+      // 3. (Re)crear la instancia del código QR
+      if (qr === null) {
+        qr = new QRCode(qrContainer, {
+          text: finalURL, 
+          width: 256,
+          height: 256,
+          colorDark : "#000000",
+          colorLight : "#ffffff",
+          correctLevel : QRCode.CorrectLevel.H
+        });
+      } else {
+        // Si ya existe, solo actualiza el texto
+        qr.makeCode(finalURL);
       }
       
-    </style>
-  </head>
-  <body>
-    <div id="container">
-      <div id="clock">--:--:--</div>
-      <div class="btn-group">
-        <button id="pauseBtn">Renovar</button> 
-        <button id="show-dialog">Reportar</button>
-        <button id="closeBtn">Salir</button>
-      </div>
-    </div>
-
-
-  </body>
-  <script src="renderer.js"></script>
+      // 4. Mostrar el link generado para verificación
+      urlMessage.textContent = `Link Generado: ${finalURL}`;
+    }
+  </script>
 </html>
