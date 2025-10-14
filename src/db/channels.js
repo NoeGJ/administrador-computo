@@ -9,7 +9,6 @@ export const userChannel = (mainWindow) => {
       "postgres_changes",
       { event: "*", schema: "public", table: "users" },
       async (payload) => {
-        console.log("Cambio detectado:", payload);
 
         if (payload.eventType === "INSERT") {
           const { data, error } = await supabase
@@ -29,17 +28,16 @@ export const userChannel = (mainWindow) => {
 
         if (payload.eventType === "UPDATE") {
           const exist = findUser(payload.new);
-          //const exist = users.find((item) => item.id === payload.new.id);
+
           if (payload.new.active && !exist) {
             addUser(payload.new);
-            console.log(users);
+
           } else if (!payload.new.active && exist)
-            //users = users.filter((item) => item.id !== payload.new.id);
+
             removeUser(payload.new);
           else {
             replaceDate(payload.new, payload.new?.finalTime);
-            //const index = users.findIndex((item) => item.id === payload.new.id);
-            //users[index] = { ...users[index], finalTime: payload.new.finalTime };
+
           }
         }
         mainWindow.webContents.send("user-changed", payload);
@@ -64,10 +62,9 @@ export const reporteChannel = (mainWindow) => {
             .eq("id", payload.new.id)
             .single();
 
-          console.log(dataRep, errorRep);
 
-          if (!error) {
-            alert("Algo salio mal al importar los reportes");
+          if (errorRep) {
+            alert("Algo salio mal al generar el reportes");
             return;
           }
           

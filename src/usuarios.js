@@ -22,10 +22,6 @@ export const removeUserById = (id) =>
 export const changeDate = (idTimer) => {
   const index = users.findIndex((item) => item.id === idTimer);
 
-  console.log(index);
-
-  console.log(users[index]);
-
   let newTime = new Date(users[index].finalTime);
   newTime.setHours(newTime.getHours() + 2);
   return newTime;

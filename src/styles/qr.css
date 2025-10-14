@@ -1,0 +1,65 @@
+#input-container {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    display: inline-block;
+    border-radius: 8px;
+}
+
+#input-container label, 
+#input-container input {
+    display: block;
+    margin: 10px auto;
+}
+
+
+input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 250px;
+    text-align: center;
+}
+
+#qrcode {
+    display: inline-block;
+    margin-top: 20px;
+}
+
+#input-container button {
+    display: block;
+    margin: 10px auto;
+}
+
+#input-container button,
+#downloadBton {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+#input-container button:hover,
+#downloadBton:hover {
+    background-color: #0056b3;
+}
+
+#downloadBton {
+    display: none;
+    margin-top: 25px;
+}
+
+.btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#qr-container {
+    display: block;
+    justify-content: center;
+    align-items: center;
+}

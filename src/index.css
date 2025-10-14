@@ -20,6 +20,7 @@ margin: 0;
 font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
 background-color: #111827;
 color: var(--text);
+
 }
 
 
@@ -56,7 +57,7 @@ transition: transform .06s ease, background .2s ease, border-color .2s ease;
 .btn.accent { background: var(--accent); color: #fff; }
 
 .list {
-max-width: 1100px;
+max-width: 60%;
 margin: 0 auto 60px;
 padding: 16px;
 display: grid;
@@ -203,83 +204,111 @@ dialog .dialog-actions input[type="button"]:hover {
 }
 
 
-  .tab.active {
-    border-bottom: 2px solid #007bff;
-    color: #007bff;
-  }
+.tab.active {
+  border-bottom: 2px solid #007bff;
+  color: #007bff;
+}
 
-  .tab-content {
-    display: none;
-    margin-top: 1rem;
-  }
+.tab-content {
+  display: none; 
+  height: 100vh;  
 
-  .tab-content.active {
-    display: block;
-  }
+  padding: 1rem;
+  box-sizing: border-box;
+}
 
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
+.tab-content.active {
+  display: block;
 
-  }
+}
 
-  th, td {
-    padding: 0.8rem;
-    
-    text-align: center;
-  }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 
-  th {
-    background: #0f172a;
-  }
+}
 
-   .dot {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    margin-right: 5px;
-  }
+.tabla-scroll {
+  flex: 1;
+  overflow-y: auto;
+}
 
-  .activo {
-    background-color: green;
-  }
+#vista3.tab-content {
+  flex-direction: column;
+  height: 90vh;
+}
 
-  .inactivo {
-    background-color: red;
-  }
+#vista3.tab-content.active {
+  display: flex;
+}
+
+#vista2.tab-content {
+  flex-direction: column;
+  height: 90vh;
+}
+
+#vista2.tab-content.active {
+  display: flex;
+}
+
+
+#tabla-logs th, #tabla-logs td {
+  padding: 8px;
+  text-align: left;
+
+}
+
+th, td {
+  padding: 0.8rem;
+  
+  text-align: center;
+}
+
+th {
+  background: #0f172a;
+}
+
+.dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+}
+
+.activo {
+  background-color: green;
+}
+
+.inactivo {
+  background-color: red;
+}
 
 .nuevo-equipo {
-  display: flex;
-  flex-direction: column;
-  max-width: 300px;
-  margin: 20px auto;
-  font-family: Arial, sans-serif;
+display: flex;
+flex-direction: column;
+max-width: 300px;
+margin: 20px auto;
+font-family: Arial, sans-serif;
 }
 
 .nuevo-equipo label {
-  margin-bottom: 8px;
-  font-weight: bold;
-  color: #fff;
+margin-bottom: 8px;
+font-weight: bold;
+color: #fff;
 }
 
 .nuevo-equipo input[type="text"] {
-  padding: 10px 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 16px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+padding: 10px 12px;
+border: 1px solid #ccc;
+border-radius: 6px;
+font-size: 16px;
+transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .nuevo-equipo input[type="text"]:focus {
   border-color: #4a90e2;
   box-shadow: 0 0 4px rgba(74, 144, 226, 0.5);
   outline: none;
-}
-
-#vista3 {
-  width: 100%;
-  height: 30px !important;
-  max-height: 20px;
 }

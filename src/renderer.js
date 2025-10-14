@@ -14,9 +14,9 @@ let index = 0;
 
 function renderAll() {
   list.innerHTML = "";
-  const activos = items.filter((user) => user?.active)
-  if (!activos) return;
-  activos.forEach((data) => {
+
+  if (!items) return;
+  items.forEach((data) => {
     render(data);
   });
 }
@@ -93,8 +93,8 @@ function render(data) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const info = new FormData(form);
-    
-    window.api.sendReport(data.id, data.equipos.id, info.get("report"));
+    window.api.sendReport(data.id, data.equipos.id, "Reporte de Admin: " + info.get("report"));
+    form.reset();
 
     dialog.close();
   });
@@ -140,14 +140,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const { activeUsers, logs } = await window.api.fetchUsers();
   
-  //const res = result.data.filter((user) => user.active)
-  console.log(activeUsers);
   items = activeUsers;
 
   logList = logs;
 
   const { data } = await window.api.fetchReportes();
-  console.log(data);
+
   
   reportes = data;
   renderAll();
@@ -156,15 +154,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 window.api.onUserChanged((payload) => {
-  console.log("Nuevo cambio en usuario:", payload);
 
-  // Agrega el nuevo dato sin reiniciar temporizadores
-  // Por ejemplo, actualiza una lista local
   actualizarUsuario(payload);
 });
 
 window.api.onReporteChanged((payload) => {
-  console.log("Nuevo cambio en reporte:", payload); 
+
   reportes.push(payload);
 
   if(mensajeVacio.style.display == "block") mensajeVacio.style.display = "none";
@@ -194,14 +189,14 @@ function actualizarUsuario(payload) {
     const exist = items.some((item) => item?.id === nuevo.id);
     if (nuevo.active && !exist) {      
       items.push(nuevo);
-      console.log(items);
       
       render(nuevo);
     }else if (!nuevo.active && exist) {
       
       const index = logList.findIndex((item) => item.id === nuevo.id);
       logList[index] = { ...logList[index], active: false };
-      renderLog(logList[index], "active");
+      nuevo.equipos = logList[index].equipos
+      renderLog(nuevo, "active");
 
       items = items.filter((value) => value.id != nuevo.id);
       const article = document.getElementById(`item-${nuevo.id}`);
@@ -212,9 +207,9 @@ function actualizarUsuario(payload) {
       items[index] = { ...items[index], finalTime: nuevo.finalTime };
 
       logList[index] = { ...logList[index], finalTime: nuevo.finalTime };
-      console.log(logList[index]);
-      
-      renderLog(logList[index], "date");
+
+      nuevo.equipos = logList[index].equipos
+      renderLog(nuevo, "date");
 
       const article = document.getElementById(`item-${nuevo.id}`);
       if(article){
@@ -244,9 +239,17 @@ document.querySelectorAll(".tabs .tab").forEach((tab) => {
       .querySelectorAll(".tab-content")
       .forEach((c) => c.classList.remove("active"));
 
-    // activar el tab clickeado y su contenido
-    tab.classList.add("active");
-    document.getElementById(tab.dataset.tab).classList.add("active");
+      tab.classList.add("active");
+      const targetId = tab.dataset.tab;
+      const targetView = document.getElementById(targetId);
+      targetView.classList.add("active");
+
+      // ✅ Activar scroll global solo para vista1
+      if (targetId === "vista1") {
+        document.body.style.overflow = "auto";
+      } else {
+        document.body.style.overflow = "hidden";
+      }
   });
 });
 
@@ -263,7 +266,6 @@ function renderReportes() {
   } else {
     mensajeVacio.style.display = "none";
   }
-  console.log(reportes);
   
   reportes.forEach((rep) => {
     const row = document.createElement("tr");
@@ -283,7 +285,6 @@ const logsVacios = document.getElementById("logs-vacios");
 
 function renderLogs() {
   tbodyLogs.innerHTML = "";
-  console.log(logList);
 
   isEmptyLogs();
   

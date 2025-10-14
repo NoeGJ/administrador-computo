@@ -1,44 +1,10 @@
 <!DOCTYPE html>
 <html>
-
 <head>
   <meta charset="UTF-8" />
   <title>Administrador de equipos</title>
   <link rel="stylesheet" href="index.css" />
-  <!--  -->
-  <style>
-
-    #input-container {
-      margin-bottom: 20px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      display: inline-block;
-      border-radius: 8px;
-    }
-    
-    #input-container label, 
-    #input-container input, 
-    #input-container button {
-      display: block;
-      margin: 10px auto;
-    }
-    
-    input[type="text"] {
-      padding: 8px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      width: 250px;
-      text-align: center;
-    }
-    
-
-
-    #qrcode {
-      display: inline-block;
-      margin-top: 20px;
-    }
-  </style>
-  <!--  -->
+  <link rel="stylesheet" href="./styles//qr.css">
 </head>
 
 <body>
@@ -51,15 +17,11 @@
       <button class="tab" data-tab="vista2">Reportes</button>
       <button class="tab" data-tab="vista4">Nuevo</button>
     </nav>
-
-    <!-- <div class="actions">
-      <button id="addItemBtn" class="btn primary">+ Agregar ítem</button>
-    </div> -->
   </header>
 
   <section id="vista1" class="tab-content active">
   <main id="list" class="list"></main>
-
+  
   <template id="itemTemplate">
     <article class="item">
       <header class="item-header">
@@ -74,13 +36,11 @@
           </div>
       </header>
 
-
       <div class="tabs">
         <nav class="tablist" role="tablist" aria-label="Detalles del ítem">
           <button class="tab active" role="tab" aria-selected="true" data-tab="usuario">Usuario</button>
           <button class="tab" role="tab" aria-selected="false" data-tab="equipos">Equipos</button>
         </nav>
-
 
         <section class="tabpanel active" role="tabpanel" data-panel="usuario"></section>
         <section class="tabpanel" role="tabpanel" data-panel="equipos"></section>
@@ -105,6 +65,7 @@
 </section>
 
 <section id="vista2" class="tab-content">
+  <div class="tabla-scroll">
   <table id="tabla-reportes">
     <thead>
       <tr>
@@ -115,26 +76,29 @@
       </tr>      
     </thead>
     <tbody>
-    </tbody>
+    </tbody>    
   </table>
+  </div>
   <p id="mensaje-vacio" style="display:none; color: #fff; text-align:center;">
     No hay reportes disponibles.
   </p>
 </section>
 
 <section id="vista3" class="tab-content">
+  <div class="tabla-scroll">
   <table id="tabla-logs">
     <thead>
       <tr>
         <th></th>
         <th>Usuario</th>
         <th>Duración</th>
-        <th>Equipo</th>  
+        <th>Equipo</th>
       </tr>      
     </thead>
     <tbody>
     </tbody>
   </table>
+  </div>
   <p id="logs-vacios" style="display:none; color: #fff; text-align:center;">
     No hay Registros disponibles.
   </p>
@@ -152,59 +116,21 @@
     <button onclick="generateQRCode()">Generar QR</button>
   </div>
 
+  <div id="qr-container">
   <p id="generatedUrlMessage" style="color: green; font-weight: bold; min-height: 20px;"></p>
 
   <div id="qrcode"></div>
-
+  <div class="btn-container">
+    <button id="downloadBton">Imprimir</button>
+  </div>
+  </div>
   </div>
 </section>
 
 <output></output>
 
 </body>
-<script type="module" src="renderer.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-
-  <script>
-    // URL base, sin el parámetro del equipo.
-    const baseURL = "http://192.168.1.114:3000/index.html";
-    let qr = null; // Variable para almacenar la instancia del QR
-
-    function generateQRCode() {
-      const equipoNameInput = document.getElementById("equipoName");
-      const equipoName = equipoNameInput.value.trim();
-      const qrContainer = document.getElementById("qrcode");
-      const urlMessage = document.getElementById("generatedUrlMessage");
-
-      if (equipoName === "") {
-        alert("Por favor, introduce el nombre del equipo.");
-        equipoNameInput.focus();
-        return;
-      }
-
-      // 1. Construir el link completo con el parámetro 'equipo'
-      const finalURL = `${baseURL}?equipo=${encodeURIComponent(equipoName)}`;
-
-      // 2. Limpiar el contenedor del QR anterior
-      qrContainer.innerHTML = "";
-      
-      // 3. (Re)crear la instancia del código QR
-      if (qr === null) {
-        qr = new QRCode(qrContainer, {
-          text: finalURL, 
-          width: 256,
-          height: 256,
-          colorDark : "#000000",
-          colorLight : "#ffffff",
-          correctLevel : QRCode.CorrectLevel.H
-        });
-      } else {
-        // Si ya existe, solo actualiza el texto
-        qr.makeCode(finalURL);
-      }
-      
-      // 4. Mostrar el link generado para verificación
-      urlMessage.textContent = `Link Generado: ${finalURL}`;
-    }
-  </script>
+<script type="module" src="renderer.js"></script>
+<script src="./components/qr/qrcode.js"></script>
 </html>

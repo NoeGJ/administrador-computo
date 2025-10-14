@@ -17,8 +17,6 @@ ipcMain.handle("fetch-users", async () => {
 
   const error = activeError || logsError;
 
-  console.log(logs);
-
   if (error) {
     alert("Error al traer datos de users:", error);
     return { activeUsers: [], logs: [], error };
@@ -31,16 +29,6 @@ ipcMain.handle("fetch-users", async () => {
 
 // Actualizar fecha final por el administrador
 ipcMain.on("date-updated", async (event, seconds, idTimer) => {
-  // const index = users.findIndex((item) => item.id === idTimer);
-
-  // console.log(index);
-
-  // console.log(users[index]);
-
-  // let newTime = new Date(users[index].finalTime);
-  // newTime.setHours(newTime.getHours() + 2);
-
-  // console.log(newTime);
 
   const newTime = changeDate(idTimer);
 
@@ -56,7 +44,7 @@ ipcMain.on("date-updated", async (event, seconds, idTimer) => {
 
 // Terminar temporizador por el administrador
 ipcMain.on("finish", async (event, id, id_equipo) => {
-  //users = users.filter((item) => item.id != id);
+
   removeUserById(id);
 
   await Promise.all([
