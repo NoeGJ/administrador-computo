@@ -19,8 +19,8 @@ if (electronSquirrelStartup) {
 }
 
 let mainWindow;
-let configWindow;
-const createWindow = () => {
+export let configWindow;
+export const createWindow = () => {
   // Create the browser window.
   const { width, height } = screen.getPrimaryDisplay().size;
 
@@ -46,14 +46,12 @@ const createWindow = () => {
 
 const createConfigWindow = () => {
     // Create the browser window.
-  const { width, height } = screen.getPrimaryDisplay().size;
-
   configWindow = new BrowserWindow({
     width: 500,
     height: 600,
 
     webPreferences: {
-      //preload: path.join(__dirname, "preload.js"),
+      preload: path.join(__dirname, "view","preload.js"),
       contextIsolation: true,
       nodeIntegration: false,
     },
