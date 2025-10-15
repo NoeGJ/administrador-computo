@@ -18,14 +18,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@inventores/api": "^1.0.3",
     "@supabase/supabase-js": "^2.57.4",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.2",
     "electron-squirrel-startup": "^1.0.1",
     "electron-store": "^11.0.2",
-    "express": "^5.1.0",
     "pg": "^8.16.3"
   },
   "devDependencies": {

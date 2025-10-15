@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { dialog, ipcMain } from "electron";
 import { supabase } from "../db/connection.js";
 
 //Verifica si hay reportes
@@ -9,7 +9,7 @@ ipcMain.handle("fetch-reportes", async () => {
     .order("created_at", { ascending: false });
 
   if (error) {
-    alert("No se cargaron los reportes");
+    dialog.showErrorBox("No se cargaron los reportes");
     return;
     }
   return { data, error };

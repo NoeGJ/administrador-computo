@@ -1,4 +1,4 @@
-import { app, BrowserWindow, screen } from "electron";
+import { app, BrowserWindow, dialog, screen } from "electron";
 import electronSquirrelStartup from "electron-squirrel-startup";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
@@ -12,6 +12,7 @@ import "dotenv/config.js";
 import { reporteChannel, userChannel } from "./db/channels.js";
 import "./ipc/index.js";
 import { hasCredentials } from "./config.js";
+import { testConn } from "./db/connection.js";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (electronSquirrelStartup) {
@@ -40,8 +41,6 @@ export const createWindow = () => {
   // and load the index.html of the app.
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 
-  // Open the DevTools.
-  mainWindow.webContents.openDevTools();
 };
 
 const createConfigWindow = () => {
@@ -61,26 +60,34 @@ const createConfigWindow = () => {
   // and load the index.html of the app.
   configWindow.loadFile(path.join(__dirname, "/view/config.html"));
 
-  // Open the DevTools.
-  configWindow.webContents.openDevTools();
 }
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
   const hasCred = hasCredentials();
 
-  if(hasCred)
+  if(hasCred){
     createWindow();
+    const isConn = await testConn();
+    
+    if(isConn.ok){
+      userChannel(mainWindow);
+      reporteChannel(mainWindow);
+    }
+    else {
+      dialog.showErrorBox("Error de conexion", "No se pudo acceder a la base de datos");
+      mainWindow.close();
+    }
+
+    } 
   else
     createConfigWindow();
 
+
   // Inicializa los canales por donde recibira datos de la DB
-  if(hasCred){
-    userChannel(mainWindow);
-    reporteChannel(mainWindow);
-  }
+
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   app.on("activate", () => {

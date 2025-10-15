@@ -1,4 +1,4 @@
-import { ipcMain } from "electron";
+import { dialog, ipcMain } from "electron";
 import { supabase } from "../db/connection.js";
 import { changeDate, removeUserById, setUsers, users } from "../usuarios.js";
 
@@ -18,7 +18,7 @@ ipcMain.handle("fetch-users", async () => {
   const error = activeError || logsError;
 
   if (error) {
-    alert("Error al traer datos de users:", error);
+    dialog.showErrorBox("Error al traer datos de users");
     return { activeUsers: [], logs: [], error };
   }
   
@@ -38,7 +38,7 @@ ipcMain.on("date-updated", async (event, seconds, idTimer) => {
     .eq("id", idTimer);
 
   if (error) {
-    alert("La fecha no se pudo cambiar");
+    dialog.showErrorBox("La fecha no se pudo cambiar");
   }
 });
 
