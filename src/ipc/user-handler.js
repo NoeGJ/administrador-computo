@@ -4,6 +4,10 @@ import { changeDate, removeUserById, setUsers, users } from "../usuarios.js";
 
 // Verifica si hay usuarios existentes
 ipcMain.handle("fetch-users", async () => {
+  if(!supabase){
+        throw new Error("Supabase client is not initialized. Check if credentials exist.");
+  }
+
   const { data: activeUsers, error: activeError } = await supabase
     .from("users")
     .select("*, equipos(*)")

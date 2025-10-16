@@ -1,19 +1,24 @@
 import { createClient } from "@supabase/supabase-js";
 import { getCredentials } from "../config.js";
 
-const {url, key } = getCredentials();
+const credentials = getCredentials();
 
+export let supabase  = null
 
-export const supabase = createClient(
-  url,
-  key
-);
+if (credentials?.url && credentials?.key) {
+  supabase = createClient(credentials.url, credentials.key);
+} else {
+  console.warn("No Supabase credentials found. Skipping Supabase client initialization.");
+}
 
 export const testConn = async () => {
+    if (!supabase) {
+    return { ok: false, msg: "Supabase client not initialized." };
+  }
+
   try{
-  const conn = supabase;
   
-  const { error } = await conn.from('equipos').select('*').limit(1);
+  const { error } = await supabase.from('equipos').select('*').limit(1);
 
   if (error) throw error
 
