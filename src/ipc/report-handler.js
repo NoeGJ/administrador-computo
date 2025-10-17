@@ -4,7 +4,7 @@ import { supabase } from "../db/connection.js";
 //Verifica si hay reportes
 ipcMain.handle("fetch-reportes", async () => {
     if(!supabase){
-        throw new Error("Supabase client is not initialized. Check if credentials exist.");
+        return;
   }
   
   const { data, error } = await supabase

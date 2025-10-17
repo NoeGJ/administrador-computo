@@ -39,7 +39,8 @@ function render(data) {
     timeEl,
     (elapsed) => (timeEl.textContent = formatHMS(elapsed)),
     getTiempoRestante(data.finalTime),
-    data.id
+    data.id,
+    data.equipos.id
   );
   sw.start();
   const usuarioPanel = node.querySelector('[data-panel="usuario"]');

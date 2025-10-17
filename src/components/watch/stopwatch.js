@@ -1,11 +1,12 @@
 export class Stopwatch {
-  constructor(node, onTick, initialTime, idTimer) {
+  constructor(node, onTick, initialTime, idTimer, id_equipo) {
     this.node = node;
     this.onTick = onTick;
     this.initialTime = initialTime;
     this.reset();
     this._flag = false;
     this.idTimer = idTimer;
+    this.id_equipo = id_equipo;
     if (initialTime == 0) {
       this.node.classList.add("time-up");
     }
@@ -54,6 +55,7 @@ export class Stopwatch {
       cancelAnimationFrame(this._raf);
       this.node.classList.add("time-up");
       alert(`Ha finalizado el tiempo de ${this.idTimer}`);
+      window.api.finishTime(this.idTimer, this.id_equipo);
       this._emit();
       return;
     }

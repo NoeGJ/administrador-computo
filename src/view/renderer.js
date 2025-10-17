@@ -17,11 +17,8 @@ btnConn.addEventListener("click", async () =>{
     }
             
     const { ok, data, message } = await window.db.testconn(url, key);
-    if(ok){
-        console.log(data);
-        
-    }else {
-        alert(message);        
+    if(!ok){
+        alert(message);
     }
 
 })
