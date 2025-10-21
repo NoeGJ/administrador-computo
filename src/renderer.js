@@ -10,7 +10,7 @@ const list = document.getElementById("list");
 const template = document.getElementById("itemTemplate");
 const showBtn = document.getElementById("show-dialog");
 
-let index = 0;
+
 
 function renderAll() {
   list.innerHTML = "";
@@ -31,7 +31,7 @@ function render(data) {
   const article = node.querySelector(".item");
   article.id = `item-${data.id}`;
 
-  node.querySelector(".item-number").textContent = index + 1;
+
 
   // Timer
   const timeEl = node.querySelector(".time");
@@ -101,7 +101,7 @@ function render(data) {
   });
 
   list.appendChild(node);
-  index++;
+
 }
 
 function renderUsuario(usuario) {
