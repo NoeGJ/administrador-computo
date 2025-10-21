@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Administrador de equipos</title>
+  <link rel="stylesheet" href="index.css" />
+  <link rel="stylesheet" href="./styles//qr.css">
+</head>
+
+<body>
+  <header class="app-header">
+
+    <h1>Lista de Equipos</h1>
+    <nav class="tabs">
+      <button class="tab active" data-tab="vista1">Equipos</button>
+      <button class="tab" data-tab="vista3">Registros</button>
+      <button class="tab" data-tab="vista2">Reportes</button>
+      <button class="tab" data-tab="vista4">Nuevo</button>
+    </nav>
+  </header>
+
+  <section id="vista1" class="tab-content active">
+  <main id="list" class="list"></main>
+  
+  <template id="itemTemplate">
+    <article class="item">
+      <header class="item-header">
+        <h2 class="item-title"></h2>
+        <div class="timer">
+          <div class="time" aria-live="polite">00:00:00</div>
+        </div>
+          <div class="timer-controls">              
+            <button class="btn accent extend">Renovar</button>
+            <button class="btn danger exit">Salir</button>
+            <button class="btn warn show-dialog">Reportar</button>
+          </div>
+      </header>
+
+      <div class="tabs">
+        <nav class="tablist" role="tablist" aria-label="Detalles del ítem">
+          <button class="tab active" role="tab" aria-selected="true" data-tab="usuario">Usuario</button>
+          <button class="tab" role="tab" aria-selected="false" data-tab="equipos">Equipos</button>
+        </nav>
+
+        <section class="tabpanel active" role="tabpanel" data-panel="usuario"></section>
+        <section class="tabpanel" role="tabpanel" data-panel="equipos"></section>
+      </div>
+    </article>
+  </template>
+
+  <dialog id="dialog">
+  <form method="dialog" id="dialog-form">
+    <p>
+      <label for="report">
+        Describe el problema
+      </label>
+    </p>
+    <textarea id="report" name="report" rows="8" cols="50" maxlength="300" required style="resize:vertical; color: #fff"></textarea>
+    <div class="dialog-actions">
+      <input type="submit" value="Enviar" id="btn-send"/>    
+      <input type="button" id="js-close" value="Cancelar" />
+    </div>
+  </form>
+</dialog>
+</section>
+
+<section id="vista2" class="tab-content">
+  <div class="tabla-scroll">
+  <table id="tabla-reportes">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Código</th>
+        <th>Equipo</th>
+        <th>Descripción</th>      
+      </tr>      
+    </thead>
+    <tbody>
+    </tbody>    
+  </table>
+  </div>
+  <p id="mensaje-vacio" style="display:none; color: #fff; text-align:center;">
+    No hay reportes disponibles.
+  </p>
+</section>
+
+<section id="vista3" class="tab-content">
+  <div class="tabla-scroll">
+  <table id="tabla-logs">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Usuario</th>
+        <th>Duración</th>
+        <th>Equipo</th>
+      </tr>      
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+  </div>
+  <p id="logs-vacios" style="display:none; color: #fff; text-align:center;">
+    No hay Registros disponibles.
+  </p>
+</section>
+
+<section id="vista4" class="tab-content">
+  <div class="nuevo-equipo">
+    
+    <h2>Generador de QR para Enlace de Acceso</h2>
+
+  <div id="input-container">
+    <label  for="equipoName">Nombre del Equipo (Ej: PC-LAB-001):</label>
+    <input type="text" id="equipoName" placeholder="Escribe el nombre del equipo" required>
+    
+    <button onclick="generateQRCode()">Generar QR</button>
+  </div>
+
+  <div id="qr-container">
+  <p id="generatedUrlMessage" style="color: green; font-weight: bold; min-height: 20px;"></p>
+
+  <div id="qrcode"></div>
+  <div class="btn-container">
+    <button id="downloadBton">Imprimir</button>
+  </div>
+  </div>
+  </div>
+</section>
+
+<output></output>
+
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script type="module" src="renderer.js"></script>
+<script src="./components/qr/qrcode.js"></script>
+</html>
