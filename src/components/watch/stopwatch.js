@@ -54,8 +54,8 @@ export class Stopwatch {
       this.running = false;
       cancelAnimationFrame(this._raf);
       this.node.classList.add("time-up");
-      alert(`Ha finalizado el tiempo de ${this.idTimer}`);
       window.api.finishTime(this.idTimer, this.id_equipo);
+      alert(`Ha finalizado el tiempo de ${this.idTimer}`);
       this._emit();
       return;
     }

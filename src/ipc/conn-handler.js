@@ -5,6 +5,7 @@ import { configWindow, startApp } from "../index.js"
 import { initSupabase } from "../db/connection.js"
 
 
+
 ipcMain.handle('connect-db', async (event, { url, key }) => {
   try {
     const client = createClient(url, key)
