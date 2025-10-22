@@ -10,7 +10,7 @@ const list = document.getElementById("list");
 const template = document.getElementById("itemTemplate");
 const showBtn = document.getElementById("show-dialog");
 
-let index = 0;
+
 
 function renderAll() {
   list.innerHTML = "";
@@ -31,7 +31,6 @@ function render(data) {
   const article = node.querySelector(".item");
   article.id = `item-${data.id}`;
 
-  node.querySelector(".item-number").textContent = index + 1;
 
   // Timer
   const timeEl = node.querySelector(".time");
@@ -40,7 +39,8 @@ function render(data) {
     (elapsed) => (timeEl.textContent = formatHMS(elapsed)),
     getTiempoRestante(data.finalTime),
     data.id,
-    data.equipos.id
+    data.equipos.id,
+    data.code
   );
   sw.start();
   const usuarioPanel = node.querySelector('[data-panel="usuario"]');
@@ -101,7 +101,6 @@ function render(data) {
   });
 
   list.appendChild(node);
-  index++;
 }
 
 function renderUsuario(usuario) {
@@ -211,7 +210,7 @@ function actualizarUsuario(payload) {
 
       nuevo.equipos = logList[index].equipos
       renderLog(nuevo, "date");
-
+      
       const article = document.getElementById(`item-${nuevo.id}`);
       if(article){
       const timeEl = article.querySelector(".time");
@@ -220,7 +219,9 @@ function actualizarUsuario(payload) {
         timeEl,
         (elapsed) => (timeEl.textContent = formatHMS(elapsed)),
         getTiempoRestante(nuevo.finalTime),
-        nuevo.id
+        nuevo.id,
+        nuevo.equipos.id,
+        nuevo.code
       );
       sw.start();
       }
@@ -245,7 +246,6 @@ document.querySelectorAll(".tabs .tab").forEach((tab) => {
       const targetView = document.getElementById(targetId);
       targetView.classList.add("active");
 
-      // ✅ Activar scroll global solo para vista1
       if (targetId === "vista1") {
         document.body.style.overflow = "auto";
       } else {
@@ -311,7 +311,7 @@ function createRowLog(item) {
         <td><span class="dot ${item.active ? "activo" : "inactivo"}"></span></td>
         <td>${item.code} - ${ item.name}</td>
         <td>${item.created_at ? new Date(item.created_at).toLocaleString() : 'N/A'} - ${item.finalTime ? new Date(item.finalTime).toLocaleString() : 'N/A'}</td>
-        <td>${item.equipos ? item.equipos.name : 'N/A'}</td>
+        <td>${item.equipos ? item.equipos?.name : 'N/A'}</td>
         `;
     return row;
 }

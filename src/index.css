@@ -253,7 +253,11 @@ table {
 }
 
 
-#tabla-logs th, #tabla-logs td {
+#tabla-logs th, 
+#tabla-logs td,
+#tabla-reportes th,
+#tabla-reportes td
+{
   padding: 8px;
   text-align: left;
 

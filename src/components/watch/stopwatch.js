@@ -1,5 +1,5 @@
 export class Stopwatch {
-  constructor(node, onTick, initialTime, idTimer, id_equipo) {
+  constructor(node, onTick, initialTime, idTimer, id_equipo, code) {
     this.node = node;
     this.onTick = onTick;
     this.initialTime = initialTime;
@@ -7,6 +7,7 @@ export class Stopwatch {
     this._flag = false;
     this.idTimer = idTimer;
     this.id_equipo = id_equipo;
+    this.code = code;
     if (initialTime == 0) {
       this.node.classList.add("time-up");
     }
@@ -55,7 +56,7 @@ export class Stopwatch {
       cancelAnimationFrame(this._raf);
       this.node.classList.add("time-up");
       window.api.finishTime(this.idTimer, this.id_equipo);
-      alert(`Ha finalizado el tiempo de ${this.idTimer}`);
+      alert(`Ha finalizado el tiempo de ${this.code}`);
       this._emit();
       return;
     }
