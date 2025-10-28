@@ -1,10 +1,8 @@
 import { createClient } from "@supabase/supabase-js"
-import { ipcMain } from "electron"
+import { dialog, ipcMain } from "electron"
 import { saveCredentials } from '../config.js'
 import { configWindow, startApp } from "../index.js"
 import { initSupabase } from "../db/connection.js"
-
-
 
 ipcMain.handle('connect-db', async (event, { url, key }) => {
   try {
@@ -25,4 +23,9 @@ ipcMain.handle('connect-db', async (event, { url, key }) => {
   } catch (err) {
     return { ok: false, message: err.message }
   }
+})
+
+ipcMain.on('show-alert', (e, msg) => {  
+  
+   dialog.showMessageBox({ message: msg} );
 })

@@ -3,6 +3,7 @@ const { contextBridge, ipcRenderer } = require('electron')
 
 contextBridge.exposeInMainWorld('db', {
     testconn: (url, key) => ipcRenderer.invoke('connect-db', { url, key }),
+    sendmsg: (msg) => ipcRenderer.send('show-alert', msg )
     
 })
 
