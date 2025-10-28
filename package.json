@@ -1,6 +1,6 @@
 {
-  "name": "electron-admin-computo",
-  "productName": "electron-admin-computo",
+  "name": "Admin-computo",
+  "productName": "Admin-computo",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": "src/index.js",
@@ -13,7 +13,7 @@
   },
   "keywords": [],
   "author": {
-    "name": ""
+    "name": "NoeGJ"
   },
   "license": "MIT",
   "dependencies": {
