@@ -94,6 +94,7 @@ function render(data) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const info = new FormData(form);
+    if(info.get("report") == "") return;
     window.api.sendReport(data.id, data.equipos.id, "Reporte de Admin: " + info.get("report"));
     form.reset();
 
